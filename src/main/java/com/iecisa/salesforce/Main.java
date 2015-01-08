@@ -5,6 +5,7 @@ import java.util.Scanner;
 import com.sforce.soap.enterprise.Connector;
 import com.sforce.soap.enterprise.EnterpriseConnection;
 import com.sforce.soap.enterprise.QueryResult;
+import com.sforce.soap.enterprise.SaveResult;
 import com.sforce.soap.enterprise.sobject.Account;
 import com.sforce.soap.enterprise.sobject.Contact;
 import com.sforce.soap.enterprise.sobject.SObject;
@@ -13,16 +14,10 @@ import com.sforce.ws.ConnectorConfig;
 
 public class Main {
   
-	    //database URL
-		static final String DATABASE_URL = "jdbc:mysql://localhost/salesforce";
-		//user
-		static final String USER = "root";
-		//password
-		static final String PASS = "123456";
-		
+	    	
 static final String USERNAME = "frblanco@iecisa.com.mx";
 static final String PASSWORD = "26Logan$onSaUNxRg6bkt1tGXdSDpAp7houJ4";
-  static EnterpriseConnection connection;
+static EnterpriseConnection connection;
 
 
   public static void main(String[] args) {
@@ -30,7 +25,7 @@ static final String PASSWORD = "26Logan$onSaUNxRg6bkt1tGXdSDpAp7houJ4";
     ConnectorConfig config = new ConnectorConfig();
     config.setUsername(USERNAME);
     config.setPassword(PASSWORD);
-    //config.setTraceMessage(true);
+   
     
     try {
       
@@ -70,6 +65,7 @@ static final String PASSWORD = "26Logan$onSaUNxRg6bkt1tGXdSDpAp7houJ4";
 	default:
 		break;
 	}
+//    menu.close();
       }
         
     } catch (ConnectionException e1) {
@@ -79,30 +75,16 @@ static final String PASSWORD = "26Logan$onSaUNxRg6bkt1tGXdSDpAp7houJ4";
   }
   
 
-  private static void queryAccount() {
-	try {
-		 QueryResult queryResults = connection.query("SELECT Name, AccountNumber, Website, Phone"
-			 		+ " FROM Account ORDER BY CreatedDate DESC");
-		     if (queryResults.getSize() > 0) {
-		       for (int i=0;i<queryResults.getRecords().length;i++) {
-		         // cast the SObject to a strongly-typed Contact
-		        Account cu = (Account)queryResults.getRecords()[i];
-		         System.out.println(" - Nombre: "+cu.getName()
-		        		 +" "+ "- Número de Cuenta: " +  cu.getAccountNumber()
-		        		 +" "+ "- Página web: " + cu.getWebsite()
-		        		 +" "+ "Número Telefónico: " + cu.getPhone());
-		       }
-		     }
-	} catch (Exception e) {
-		
-	}
-	
-}
+/*
+ * Contactos  
+ */
 
+  
 
 private static void createContacts() {
     System.out.println("Capturar Nuevo Contacto");
     try {
+    	ConnectionDB dataExternal = new ConnectionDB();
     	Scanner entrada = new Scanner(System.in);
       	Contact contacto = new Contact();
       	System.out.print("Ingrese Nombre: ");
@@ -114,13 +96,54 @@ private static void createContacts() {
       	System.out.print("Ingrese Email: ");
       	contacto.setEmail(entrada.nextLine());
       	
-      	connection.create(new SObject[] {contacto} );
+    	SaveResult[] saveResults = connection.create(new SObject[] {contacto} );
     	
+      	//for ConnectionDB, External Data and ID Contact
+      	System.out.println("Ingrese Dato externo");
+      	String dato = entrada.nextLine();
+      	if(!(dato.equals('\n'))){
+      		System.out.println(dato);
+      		dataExternal.contactData(entrada.nextLine(), saveResults[0].getId());
+      	}      	
+      	
+      	System.out.println(saveResults[0].getId());
+      	     	
+//      	entrada.close();
+      	
 	} catch (Exception e) {
 		
 	}
 
 }
+
+private static void queryContacts() {
+    
+    try {
+       			
+      System.out.println("");
+      System.out.println("Mostrar todos los contactos");
+      QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
+      		+ " FROM Contact ORDER BY CreatedDate DESC");
+      if (queryResults.getSize() > 0) {
+        for (int i=0;i<queryResults.getRecords().length;i++) {
+          
+          Contact c = (Contact)queryResults.getRecords()[i];
+          System.out.println(" - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
+        		  	 + " " + "- Número Telefonico: "+ c.getPhone()
+        		  	 + " " + "- Email: " + " "+ c.getEmail()
+        		  	 + " " + "- ID: " + " " + c.getId() );
+          
+          
+        }
+        
+            
+      }
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }    
+    
+  }
 
 
 private static void updateContact() {
@@ -128,15 +151,14 @@ private static void updateContact() {
     try {
       
       Scanner entrada = new Scanner(System.in);
-//      Contact updateContact = new Contact();
+
       System.out.println("Dame un email de contacto para modificar");
-//      QueryResult queryResults = connection.query("SELECT * FROM Contact  ");
+
       
       QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
         		+ " FROM Contact WHERE Email =  " + "'" + entrada.nextLine() + "'"  );
       if (queryResults.getSize() > 0) {
-//        for (int i=0;i<queryResults.getRecords().length;i++) {
-          // cast the SObject to a strongly-typed Contact
+
     	  Contact c = (Contact)queryResults.getRecords()[0];
     	  System.out.println("Se modificara este contacto: ");
     	 
@@ -161,7 +183,7 @@ private static void updateContact() {
         		  	 + " " + "- Email: " + " "+ c.getEmail() );
       }else{System.out.println("Registro no encontrado");}
       
-    
+//    entrada.close();
     } catch (Exception e) {
     	System.out.println("Se presento un error de tipo: ");
     	e.printStackTrace();
@@ -174,10 +196,10 @@ private static void deleteContact(){
 	try {
 	
 		Scanner entrada = new Scanner(System.in);
-      System.out.println("Dame un email de contacto para eliminar");
+      System.out.println("Dame un ID de contacto para eliminar");
       
       QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
-        		+ " FROM Contact WHERE Email =  " + "'" + entrada.nextLine() + "'"  );
+        		+ " FROM Contact WHERE Id =  " + "'" + entrada.nextLine() + "'"  );
       if (queryResults.getSize() > 0) {
     	  Contact c = (Contact)queryResults.getRecords()[0];
     	  System.out.println("Se eliminara este contacto: ");
@@ -191,12 +213,36 @@ private static void deleteContact(){
           System.out.println("El contacto se elimino.");
          
       }else{System.out.println("Registro no encontrado");}
-      
+//   entrada.close();  
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
 }
 
+
+/*
+ * Cuentas
+ */
+
+private static void queryAccount() {
+	try {
+		 QueryResult queryResults = connection.query("SELECT Name, AccountNumber, Website, Phone"
+			 		+ " FROM Account ORDER BY CreatedDate DESC");
+		     if (queryResults.getSize() > 0) {
+		       for (int i=0;i<queryResults.getRecords().length;i++) {
+		         // cast the SObject to a strongly-typed Contact
+		        Account cu = (Account)queryResults.getRecords()[i];
+		         System.out.println(" - Nombre: "+cu.getName()
+		        		 +" "+ "- Número de Cuenta: " +  cu.getAccountNumber()
+		        		 +" "+ "- Página web: " + cu.getWebsite()
+		        		 +" "+ "Número Telefónico: " + cu.getPhone());
+		       }
+		     }
+	} catch (Exception e) {
+		
+	}
+	
+}
 
 private static void createAccount() {
 	
@@ -214,7 +260,7 @@ private static void createAccount() {
 		  cuenta.setPhone(entrada.nextLine());
 		  
 		  connection.create(new SObject[] {cuenta} );
-		
+//	  entrada.close();
 	  }catch (Exception e) {
 	      e.printStackTrace();
 	    } 
@@ -222,33 +268,6 @@ private static void createAccount() {
 }
 
 
-private static void queryContacts() {
-    
-    try {
-       
-    	
-    			
-      System.out.println("");
-      System.out.println("Mostrar todos los contactos");
-      QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
-      		+ " FROM Contact ORDER BY CreatedDate DESC");
-      if (queryResults.getSize() > 0) {
-        for (int i=0;i<queryResults.getRecords().length;i++) {
-          // cast the SObject to a strongly-typed Contact
-          Contact c = (Contact)queryResults.getRecords()[i];
-          System.out.println(" - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
-        		  	 + " " + "- Número Telefonico: "+ c.getPhone()
-        		  	 + " " + "- Email: " + " "+ c.getEmail()
-        		  	 + " " + "- ID: " + " " + c.getId() );
-        }
-      }
-      
-    } catch (Exception e) {
-      e.printStackTrace();
-    }    
-    
-  }
-  
 
  
 }
