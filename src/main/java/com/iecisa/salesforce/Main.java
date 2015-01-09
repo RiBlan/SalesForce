@@ -100,13 +100,11 @@ private static void createContacts() {
     	
       	//for ConnectionDB, External Data and ID Contact
       	System.out.println("Ingrese Dato externo");
-      	String dato = entrada.nextLine();
-      	if(!(dato.equals('\n'))){
-      		System.out.println(dato);
-      		dataExternal.contactData(entrada.nextLine(), saveResults[0].getId());
-      	}      	
+      		String data = entrada.nextLine(); 
+      		dataExternal.contactData(data, saveResults[0].getId());
+      	      	
       	
-      	System.out.println(saveResults[0].getId());
+      	System.out.println( "Nuevo Usuario Ingresado, su Id: " + saveResults[0].getId());
       	     	
 //      	entrada.close();
       	
@@ -119,7 +117,7 @@ private static void createContacts() {
 private static void queryContacts() {
     
     try {
-       			
+      ConnectionDB dataExternal = new ConnectionDB();
       System.out.println("");
       System.out.println("Mostrar todos los contactos");
       QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
@@ -128,11 +126,12 @@ private static void queryContacts() {
         for (int i=0;i<queryResults.getRecords().length;i++) {
           
           Contact c = (Contact)queryResults.getRecords()[i];
-          System.out.println(" - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
+          System.out.println("- ID: " + " " + c.getId() + " - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
         		  	 + " " + "- Número Telefonico: "+ c.getPhone()
-        		  	 + " " + "- Email: " + " "+ c.getEmail()
-        		  	 + " " + "- ID: " + " " + c.getId() );
-          
+        		  	 + " " + "- Email: " + " "+ c.getEmail() 
+        		  	 + " " + "- Confidencial: ");
+          String data = c.getId();
+          dataExternal.queryData(data);
           
         }
         

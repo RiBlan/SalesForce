@@ -18,41 +18,35 @@ public class ConnectionDB {
 		//password
 		private static final String PASSWORD = "123456";
 		
-		
-		
-		
-		public void contactData (String dataExternal,String idContact){
-			
-			
-			System.out.println(dataExternal);
-					
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet resultSet = null;
+		String sql;
 		
+		public void contactData (String dataExternal,String idContact){
+									
 		try{
 			
 			Class.forName(JDBC_DRIVER);
 			connection = DriverManager.getConnection(DATABASE_URL,USER,PASSWORD);
-			System.out.println("Conecto exitosamente...");
 			statement = connection.createStatement();
 			
 //			String sql = "INSERT INTO Registration " +
 //	                   "VALUES (100, 'Zara', 'Ali', 18)";
 
-			String sql = "INSERT INTO info " +
+			sql = "INSERT INTO info " +
 	                   "VALUES ("+ "'" + idContact + "'"  + "," + "'" + dataExternal + "'" + ")";
 			
 	        statement.executeUpdate(sql);
 		      
-			resultSet = statement.executeQuery("SELECT * FROM info" );
-			
-			
-			
-			while(resultSet.next()){
-				System.out.println(resultSet.getString("id") + "\t" 
-								+  resultSet.getString("confidencial") );
-			}
+//			resultSet = statement.executeQuery("SELECT * FROM info" );
+//			
+//			
+//			
+//			while(resultSet.next()){
+//				System.out.println(resultSet.getString("id") + "\t" 
+//								+  resultSet.getString("confidencial") );
+//			}
 						
 		 
 		}catch(SQLException e){
@@ -76,10 +70,55 @@ public class ConnectionDB {
 			}
 			
 		}//end finally try
-		
 		  
 			
-		}//end main
+		}//end contactData
+		
+    public void queryData (String data){
+    	String con;
+	    try{	
+	    	Class.forName(JDBC_DRIVER);
+	    	connection= DriverManager.getConnection(DATABASE_URL,USER,PASSWORD);
+	    	statement = connection.createStatement();
+	    	
+	    	sql = "SELECT confidencial from info WHERE id = '" + data + "'" ;
+	    
+	    	resultSet = statement.executeQuery(sql);
+	    	
+	    	if(resultSet.next()){
+	    		con = resultSet.getString("confidencial");
+		    	System.out.println(con);
+	    	}
+	    	
+//	    	if (resultSet!=null){
+//	    	con = resultSet.getString("confidencial");
+//	    	System.out.println(con);
+//	    	}
+	    	
+	    }catch(SQLException e){
+			//Handle errors for JDBC
+			e.printStackTrace();
+		}catch(Exception e){
+			//Handle errors for Class.forName
+			e.printStackTrace();
+		}finally{
+			//finally block used to closed resources
+			try{
+				if(statement!=null)
+					connection.close();
+			}catch(SQLException e){
+			 }//nada (do nothing)
+			try{
+				if(connection!=null)
+					connection.close();
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
+			
+		}//end finally try
+		
+	}//end queryData
+
 	}//end ConnectionDB
 	
 	
