@@ -39,16 +39,7 @@ public class ConnectionDB {
 			
 	        statement.executeUpdate(sql);
 		      
-//			resultSet = statement.executeQuery("SELECT * FROM info" );
-//			
-//			
-//			
-//			while(resultSet.next()){
-//				System.out.println(resultSet.getString("id") + "\t" 
-//								+  resultSet.getString("confidencial") );
-//			}
-						
-		 
+	 
 		}catch(SQLException e){
 			//Handle errors for JDBC
 			e.printStackTrace();
@@ -118,7 +109,77 @@ public class ConnectionDB {
 		}//end finally try
 		
 	}//end queryData
+    
+    public void updateData(String dataExternal, String idContact){
+    	try{
+    	
+    	Class.forName(JDBC_DRIVER);
+    	connection = DriverManager.getConnection(DATABASE_URL,USER,PASSWORD);
+		statement = connection.createStatement();
+		
+		// UPDATE table_name SET field1=new-value1, field2=new-value2
+		// [WHERE Clause]
+		sql =  "UPDATE info SET confidencial = '" + dataExternal + "' " + "WHERE id = '" + idContact + "'"; 
+		
+        statement.executeUpdate(sql);
+    	
+    }catch(SQLException e){
+		//Handle errors for JDBC
+		e.printStackTrace();
+	}catch(Exception e){
+		//Handle errors for Class.forName
+		e.printStackTrace();
+	}finally{
+		//finally block used to closed resources
+		try{
+			if(statement!=null)
+				connection.close();
+		}catch(SQLException e){
+		 }//nada (do nothing)
+		try{
+			if(connection!=null)
+				connection.close();
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		
+	}//end finally try
+    }//end updateData
 
+    public void deleteData (String idContact){
+//    	DELETE FROM table_name [WHERE Clause]
+//    	If WHERE clause is not specified, then all the records will be deleted from the given MySQL table.
+    	try{
+    	Class.forName(JDBC_DRIVER);
+    	connection = DriverManager.getConnection(DATABASE_URL,USER,PASSWORD);
+    	statement = connection.createStatement();
+    	
+    	sql = "DELETE FROM info WHERE id = '" + idContact + "'";
+    	statement.executeUpdate(sql);
+    	    	
+    	}catch(SQLException e){
+    		//Handle errors for JDBC
+    		e.printStackTrace();
+    	}catch(Exception e){
+    		//Hadle errors for Class.forName
+    		e.printStackTrace();
+    	}finally{
+    		//finally block used to closed resources
+    		try{
+    			if(statement!=null)
+    				connection.close();
+    		}catch(SQLException e){
+    		}//do nothing
+    		try{
+    			if(connection!=null)
+    				connection.close();
+    		}catch(SQLException e){
+    			e.printStackTrace();
+    		}
+    	}
+    }//end deleteData
+    
+    
 	}//end ConnectionDB
 	
 	

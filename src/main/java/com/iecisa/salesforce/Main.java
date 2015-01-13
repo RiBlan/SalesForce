@@ -150,21 +150,20 @@ private static void updateContact() {
     try {
       
       Scanner entrada = new Scanner(System.in);
-
-      System.out.println("Dame un email de contacto para modificar");
-
+      ConnectionDB dataExternal = new ConnectionDB();
+      System.out.println("Dame un ID de contacto para modificar");
+      String idContact = entrada.nextLine();
       
       QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
-        		+ " FROM Contact WHERE Email =  " + "'" + entrada.nextLine() + "'"  );
+        		+ " FROM Contact WHERE Id =  " + "'" + idContact + "'"  );
       if (queryResults.getSize() > 0) {
 
     	  Contact c = (Contact)queryResults.getRecords()[0];
     	  System.out.println("Se modificara este contacto: ");
     	 
-    	  System.out.println(" - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
+    	  System.out.println("- Id: " + " " + c.getId() + " - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
      		  	 + " " + "- Número Telefonico: "+ c.getPhone()
-     		  	 + " " + "- Email: " + " "+ c.getEmail()
-     		  	 + " " + "- Id: " + " " + c.getId());
+     		  	 + " " + "- Email: " + " "+ c.getEmail());
     	    	  
          
             System.out.print("Ingrese Nombre: ");
@@ -173,13 +172,21 @@ private static void updateContact() {
         	c.setLastName(entrada.nextLine());
         	System.out.print("Ingrese número telefónico: ");
         	c.setPhone(entrada.nextLine());
+        	System.out.println("Ingrese Email");
+        	c.setEmail(entrada.nextLine());
           
         	connection.update(new SObject[] {c} );
+        	
+        	System.out.println("Ingrese campo confidencial");
+        	String data = entrada.nextLine();
+        	dataExternal.updateData(data, idContact);
         	
           System.out.println("El contacto Modificado: ");
           System.out.println(" - Nombre: "+c.getFirstName()+" "+ c.getLastName() 
         		  	 + " " + "- Número Telefonico: "+ c.getPhone()
         		  	 + " " + "- Email: " + " "+ c.getEmail() );
+          
+          
       }else{System.out.println("Registro no encontrado");}
       
 //    entrada.close();
@@ -195,10 +202,11 @@ private static void deleteContact(){
 	try {
 	
 		Scanner entrada = new Scanner(System.in);
+		ConnectionDB dataExternal = new ConnectionDB();
       System.out.println("Dame un ID de contacto para eliminar");
-      
+      String idContact = entrada.nextLine();
       QueryResult queryResults = connection.query("SELECT FirstName, LastName, Phone,Email, Id"
-        		+ " FROM Contact WHERE Id =  " + "'" + entrada.nextLine() + "'"  );
+        		+ " FROM Contact WHERE Id =  " + "'" + idContact + "'"  );
       if (queryResults.getSize() > 0) {
     	  Contact c = (Contact)queryResults.getRecords()[0];
     	  System.out.println("Se eliminara este contacto: ");
@@ -208,6 +216,7 @@ private static void deleteContact(){
     	    	          
               String[] id = {c.getId()};
         	  connection.delete(id);
+        	  dataExternal.deleteData(idContact);
         	       	
           System.out.println("El contacto se elimino.");
          
